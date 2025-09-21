@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <title>Petualangan Iqra 20 Level - Canva Code</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Offline, tanpa CDN -->
+  <style>
+    :root{
+      --bgA:#22c1c3; --bgB:#88d3ce; --ink:#0f172a;
+      --panel:rgba(255,255,255,.14); --panel2:rgba(255,255,255,.18); --border:rgba(255,255,255,.28);
+      --good:#22c55e; --bad:#ef4444; --cta:#ffd166; --bubble:#ffffff33;
+      --muted:rgba(255,255,255,.92);
+      --p1:#ffcd29; --p2:#60a5fa; --p3:#f472b6; --p4:#34d399; --p5:#f97316; --p6:#a78bfa;
+    }
+    html,body{margin:0;padding:0;height:100%;color:#fff;background:linear-gradient(135deg,var(--bgA),var(--bgB));font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;}
+    *,*:before,*:after{box-sizing:border-box}
+    .container{max-width:1140px;margin:0 auto;padding:16px;position:relative;z-index:1}
+
+    /* Colorful bubbles background */
+    .bubbles{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none}
+    .b{position:absolute;border-radius:50%;background:var(--bubble);animation:float 12s ease-in-out infinite;mix-blend-mode:screen}
+    .b1{width:160px;height:160px;left:6%;top:12%;background:radial-gradient(circle at 30% 30%, #fff6, #fff2)}
+    .b2{width:220px;height:220px;right:10%;top:18%;background:radial-gradient(circle at 60% 40%, #fff7, #fff2);animation-delay:1.2s}
+    .b3{width:120px;height:120px;left:16%;bottom:10%;background:radial-gradient(circle at 40% 50%, #fff7, #fff2);animation-delay:2.1s}
+    .b4{width:260px;height:260px;right:18%;bottom:8%;background:radial-gradient(circle at 50% 50%, #fff6, #fff2);animation-delay:.6s}
+    @keyframes float{
+      0%,100%{ transform:translateY(0) }
+      50%{ transform:translateY(-16px) }
+    }
+
+    .header{ text-align:center; position:relative; z-index:2; }
+    .title{margin:6px 0 2px;font-weight:900;font-size:clamp(22px,5vw,40px);line-height:1.1}
+    .subtitle{color:var(--muted)}
+    .badge{display:inline-flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--border);padding:6px 12px;border-radius:999px;}
+
+    .panel{background:var(--panel);border:1px solid var(--border);border-radius:22px;padding:14px;}
+    .panel-xl{padding:20px;border-radius:24px;}
+    .row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .btn{background:rgba(255,255,255,.16);border:1px solid var(--border);color:#fff;padding:10px 14px;border-radius:14px;cursor:pointer;transition:.2s}
+    .btn:hover{background:rgba(255,255,255,.26)}
+    .btn-cta{background:var(--cta);color:#2b2b2b;border:none}
+    .btn-good{background:var(--good);color:#062b1c;border:none}
+    .btn-bad{background:#fecaca;color:#7f1d1d;border:none}
+    .btn:disabled{opacity:.6;cursor:not-allowed}
+    .score-tag{background:rgba(255,255,255,.16);border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-weight:700}
+    .box{padding:14px;border:1px solid var(--border);border-radius:16px;background:rgba(255,255,255,.12)}
+    .grid-2{display:grid;grid-template-columns:1fr;gap:14px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    @media(min-width:820px){.grid-2{grid-template-columns:1fr 1fr}}
+
+    .muted{color:var(--muted)}
+    .hidden{display:none !important}
+    .center{text-align:center}
+    .big{font-size:clamp(70px,12vw,130px);line-height:1}
+    .arab{font-family:"Noto Naskh Arabic","Amiri","Scheherazade","Traditional Arabic","Geeza Pro","Arial",serif; font-variant-ligatures:normal; -webkit-font-smoothing:antialiased}
+
+    /* Kolom soal putih */
+    .qbox{background:#fff;border:2px solid #e5e7eb;border-radius:18px;padding:16px;color:var(--ink)}
+    .hint{display:inline-flex;align-items:center;gap:8px;background:#fde68a88;color:#2b2b2b;border:1px dashed #fcd34d;padding:6px 10px;border-radius:999px}
+    .opt{padding:12px;border-radius:14px;border:1px solid #e5e7eb;background:#fff;color:var(--ink);cursor:pointer;transition:.2s;text-align:center}
+    .opt:hover{background:#f9fafb}
+    .opt-right{background:#34d399;color:#053a30;border-color:#34d399}
+    .opt-wrong{background:#fb7185;color:#3a0b12;border-color:#fb7185}
+
+    /* Visual “ting” (pengganti suara) */
+    .ting{position:fixed;z-index:60;pointer-events:none;color:#fff;font-weight:800;text-shadow:0 2px 6px rgba(0,0,0,.35);animation:pop .8s ease forwards}
+    @keyframes pop{0%{transform:translateY(0) scale(.7);opacity:0}40%{transform:translateY(-18px) scale(1.05);opacity:1}100%{transform:translateY(-34px);opacity:0}}
+
+    /* Confetti mini */
+    .confetti{position:fixed;top:-10vh;width:10px;height:16px;opacity:.9;animation:fall linear forwards;border-radius:2px;z-index:60}
+    @keyframes fall{ to{ transform:translateY(110vh) rotate(720deg); opacity:1 } }
+
+    /* Owl mascot draggable */
+    .owl-wrap{position:fixed;right:16px;bottom:16px;z-index:55;touch-action:none}
+    .owl{width:120px;height:120px;position:relative}
+    .owl .head{position:absolute;inset:0;border-radius:50%;background:#6b7280;box-shadow:inset 0 -10px #4b5563}
+    .owl .face{position:absolute;inset:16px;border-radius:50%;background:#9ca3af}
+    .owl .eye{position:absolute;width:26px;height:26px;background:#111;border-radius:50%;top:40px;animation:blink 4s linear infinite;box-shadow:0 0 0 4px rgba(255,255,255,.6) inset}
+    .owl .eye:after{content:'';position:absolute;width:6px;height:6px;background:#fff;border-radius:50%;top:4px;left:4px}
+    .owl .eye.left{left:34px}
+    .owl .eye.right{right:34px}
+    @keyframes blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+    .owl .beak{position:absolute;width:22px;height:16px;background:#f59e0b;border-radius:0 0 10px 10px;left:calc(50% - 11px);top:68px}
+    .owl .ear{position:absolute;width:26px;height:26px;background:#6b7280;top:0;border-radius:6px 6px 0 0;transform:rotate(45deg)}
+    .owl .ear.left{left:12px}
+    .owl .ear.right{right:12px}
+    .owl-bubble{position:absolute;right:110px;bottom:70px;background:rgba(255,255,255,.12);border:1px solid var(--border);border-radius:14px;padding:8px 10px;opacity:0;transform:translateY(8px);transition:.2s;max-width:220px;backdrop-filter:blur(3px)}
+    .owl-wrap.active .owl-bubble{opacity:1;transform:translateY(0)}
+    .owl-handle{position:absolute;inset:0;cursor:grab;background:transparent;border:0}
+
+    /* Pause modal */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:70}
+    .modal{background:rgba(255,255,255,.14);border:1px solid var(--border);border-radius:22px;padding:18px;width:min(92vw,560px)}
+
+    /* Memory cards */
+    .mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .mem-card{position:relative;padding:0;background:transparent;border:0;perspective:800px;height:88px}
+    .mem-inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .42s ease}
+    .mem-card.flipped .mem-inner{transform:rotateY(180deg)}
+    .mem-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;border:1px solid #e5e7eb;display:flex;align-items:center;justify-content:center;background:#fff;color:var(--ink)}
+    .mem-back{transform:rotateY(180deg);font-size:36px}
+
+    /* Drag/Drop */
+    .drop-zone{border:2px dashed #d1d5db;border-radius:14px;padding:10px;min-height:54px;display:flex;align-items:center;justify-content:center;background:#fff;color:var(--ink)}
+    .draggable{padding:10px 12px;border-radius:12px;background:#fff;border:1px solid #d1d5db;color:var(--ink);cursor:grab;user-select:none}
+
+    /* Puzzle */
+    .puz{width:260px;height:260px;margin:0 auto;border-radius:16px;overflow:hidden;position:relative;border:2px solid #e5e7eb;background:#fff;color:var(--ink)}
+    .puz-cell{position:absolute;width:50%;height:50%;display:flex;align-items:center;justify-content:center;border:1px solid #e5e7eb;background:#f9fafb;font-size:86px}
+    .puz-cell[data-pos="0"]{left:0;top:0}.puz-cell[data-pos="1"]{left:50%;top:0}.puz-cell[data-pos="2"]{left:0;top:50%}.puz-cell[data-pos="3"]{left:50%;top:50%}
+
+    /* Find scene */
+    .scene{position:relative;min-height:260px;border-radius:16px;overflow:hidden;background:#fff;border:2px solid #e5e7eb;color:var(--ink)}
+    .bubble{position:absolute;padding:6px 10px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:999px}
+
+    /* Welcome visual (pengganti audio salam) */
+    .welcome{position:fixed;left:16px;bottom:100px;z-index:58;background:rgba(255,255,255,.12);border:1px solid var(--border);border-radius:14px;padding:8px 10px;animation:appear 1.2s ease forwards}
+    @keyframes appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+  <!-- Background bubbles -->
+  <div class="bubbles">
+    <div class="b b1"></div>
+    <div class="b b2"></div>
+    <div class="b b3"></div>
+    <div class="b b4"></div>
+  </div>
+
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="small arab" style="margin-bottom:6px">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+      <div class="badge"><span>📖</span><b>Canva Code</b><span class="small">Petualangan Iqra 20 Level</span></div>
+      <h1 class="title">Belajar Iqra Seru untuk TK–SD</h1>
+      <p class="subtitle">Wawasan Iqra & baca Al-Qur’an lewat 20 level. Minimal 80% untuk lanjut. Bubbles ceria dan hewan lucu menemani belajar!</p>
+    </header>
+
+    <!-- Top bar -->
+    <div class="panel row" style="margin-top:10px">
+      <div class="row" style="gap:8px">
+        <span class="score-tag">Level: <b id="levelNow">1</b>/20</span>
+        <span class="score-tag">Soal: <b id="qNow">0</b>/<b id="qTot">0</b></span>
+        <span class="score-tag">Benar: <b id="correctNow">0</b></span>
+        <span class="score-tag">Skor Level: <b id="scoreNow">0</b></span>
+      </div>
+      <div class="row" style="gap:8px">
+        <button id="btnPause" class="btn">⏸️ Jeda</button>
+        <button id="btnRestart" class="btn">🔁 Mulai Baru</button>
+      </div>
+    </div>
+
+    <!-- Level view -->
+    <main id="view" class="panel panel-xl" style="margin-top:14px">
+      <div id="content"></div>
+      <div class="row" style="margin-top:12px">
+        <div class="hint">Aturan: tidak bisa kembali ke soal sebelumnya • Auto lanjut setiap jawaban</div>
+      </div>
+    </main>
+
+    <!-- Result per level -->
+    <section id="levelResult" class="panel panel-xl hidden" style="margin-top:14px">
+      <div class="center">
+        <h2 id="levelResultTitle" style="margin:0 0 8px;font-size:24px;font-weight:800">Hasil Level</h2>
+        <p id="levelResultDesc" class="muted">...</p>
+        <div class="row" style="justify-content:center;margin-top:12px">
+          <button id="btnRepeatLevel" class="btn">🔁 Ulangi Level</button>
+          <button id="btnNextLevel" class="btn btn-good">🚀 Lanjut Level Berikutnya</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final screen -->
+    <section id="finalScreen" class="panel panel-xl hidden" style="margin-top:14px">
+      <div class="center">
+        <h2 style="margin:0 0 8px;font-size:26px;font-weight:800">Selesai! Skor Keseluruhan</h2>
+        <div id="overallStats" class="box" style="margin-top:10px"></div>
+        <div class="box" style="margin-top:12px">
+          <h3 style="margin:0 0 6px">Doa & Motivasi</h3>
+          <p style="margin:0">"رَبِّ زِدْنِي عِلْمًا" — Ya Rabb, tambahkanlah aku ilmu. Semoga menjadi anak shalih/shalihah yang rajin belajar dan berbuat baik. Aamiin.</p>
+        </div>
+        <div class="row" style="justify-content:center;margin-top:12px">
+          <button id="btnFinalRestart" class="btn">🔁 Mulai Lagi</button>
+          <button id="btnExit" class="btn btn-bad">🚪 Belajar Dulu</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Draggable Owl Mascot -->
+  <div id="owl" class="owl-wrap">
+    <button class="owl-handle" aria-label="Maskot burung hantu"></button>
+    <div class="owl">
+      <div class="ear left"></div><div class="ear right"></div>
+      <div class="head"></div>
+      <div class="face"></div>
+      <div class="eye left"></div><div class="eye right"></div>
+      <div class="beak"></div>
+    </div>
+    <div class="owl-bubble">
+      <b>Assalamualaikum! ✨</b><br>
+      Seret aku ke mana saja. Klik untuk semangat dan tips kecil ya!
+    </div>
+  </div>
+  <!-- Welcome visual (pengganti audio salam) -->
+  <div id="welcome" class="welcome">Assalamualaikum! Selamat datang di petualangan Iqra 🌟</div>
+
+  <!-- Pause Modal -->
+  <div id="pauseOverlay" class="overlay hidden">
+    <div class="modal">
+      <h3 style="margin:0 0 8px">Jeda</h3>
+      <p class="muted">Permainan disimpan otomatis. Kamu bisa lanjut kapan saja.</p>
+      <div class="row" style="justify-content:flex-end;margin-top:12px">
+        <button id="btnSaveExit" class="btn">💾 Simpan & Keluar</button>
+        <button id="btnResume" class="btn btn-good">▶️ Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resume prompt -->
+  <div id="resumeOverlay" class="overlay hidden">
+    <div class="modal">
+      <h3 style="margin:0 0 8px">Lanjutkan permainan?</h3>
+      <p class="muted">Ada progres tersimpan. Mau lanjut dari Level <b id="resumeLvl">1</b>?</p>
+      <div class="row" style="justify-content:flex-end;margin-top:12px">
+        <button id="btnResumeNo" class="btn">Mulai Baru</button>
+        <button id="btnResumeYes" class="btn btn-good">Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========== Utils ==========
+    const $ = s => document.querySelector(s);
+    const $$ = s => document.querySelectorAll(s);
+    function ting(x=window.innerWidth-120, y=window.innerHeight-120, text='Ting!'){
+      const t = document.createElement('div'); t.className='ting';
+      t.style.left = x+'px'; t.style.top = y+'px'; t.textContent = text;
+      document.body.appendChild(t); setTimeout(()=>t.remove(), 900);
+    }
+    function confettiBurst(n=14){
+      const colors = [ '#FDE68A','#93C5FD','#FCA5A5','#6EE7B7','#F9A8D4','#A7F3D0','#C4B5FD','#FFD166' ];
+      for(let i=0;i<n;i++){
+        const c = document.createElement('div'); c.className='confetti';
+        const size = Math.floor(Math.random()*7)+6;
+        c.style.left = `${Math.floor(Math.random()*100)}vw`;
+        c.style.background = colors[Math.floor(Math.random()*colors.length)];
+        c.style.width = `${size}px`; c.style.height = `${size+4}px`;
+        c.style.animationDuration = `${Math.floor(Math.random()*1000)+1400}ms`;
+        c.style.transform = `translateY(0) rotate(${Math.floor(Math.random()*360)}deg)`;
+        document.body.appendChild(c); setTimeout(()=>c.remove(), 2200);
+      }
+    }
+
+    // Draggable Owl
+    (function(){
+      const el = $('#owl'); const btn = el.querySelector('.owl-handle');
+      let dragging=false, offsetX=0, offsetY=0;
+      btn.addEventListener('pointerdown', (e)=>{ dragging=true; btn.setPointerCapture(e.pointerId);
+        const r = el.getBoundingClientRect(); offsetX=e.clientX - r.left; offsetY=e.clientY - r.top; el.classList.add('active'); ting(e.clientX,e.clientY,'Hooh!');
+      });
+      btn.addEventListener('pointermove', (e)=>{ if(!dragging) return; const x = Math.min(window.innerWidth-80, Math.max(0, e.clientX-offsetX)); const y = Math.min(window.innerHeight-80, Math.max(0, e.clientY-offsetY)); el.style.left=x+'px'; el.style.top=y+'px'; el.style.right='auto'; el.style.bottom='auto'; });
+      btn.addEventListener('pointerup', ()=>{ dragging=false; el.classList.toggle('active'); });
+      el.addEventListener('click', ()=> el.classList.toggle('active'));
+    })();
+    setTimeout(()=> $('#welcome')?.remove(), 3000);
+
+    // Random/Seed
+    function mulberry32(a){ return function(){ let t=a+=0x6D2B79F5; t=Math.imul(t^t>>>15, t|1); t^=t+Math.imul(t^t>>>7, t | 61); return ((t^t>>>14)>>>0)/4294967296; } }
+    function xmur3(str){ for(var i=0,h=1779033703^str.length;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353); h=h<<13|h>>>19;} return function(){h=Math.imul(h^h>>>16,2246822507); h=Math.imul(h^h>>>13,3266489909); return (h^h>>>16)>>>0;} }
+    function pick(arr, rng){ return arr[Math.floor(rng()*arr.length)] }
+    function shuffle(arr, rng){ const a=arr.slice(); for(let i=a.length-1;i>0;i++){ const j=Math.floor(rng()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a; }
+
+    // Data
+    const HIJAIYAH = [
+      ['alif','ا','Alif'],['ba','ب','Ba'],['ta','ت','Ta'],['tsa','ث','Tsa'],['jim','ج','Jim'],['ha','ح','Ha'],
+      ['kho','خ','Kho'],['dal','د','Dal'],['dzal','ذ','Dzal'],['ra','ر','Ra'],['zay','ز','Zay'],['sin','س','Sin'],
+      ['syin','ش','Syin'],['shad','ص','Shad'],['dhad','ض','Dhad'],['tha','ط','Tha'],['zha','ظ','Zha'],['ain','ع','Ain'],
+      ['ghain','غ','Ghain'],['fa','ف','Fa'],['qaf','ق','Qaf'],['kaf','ك','Kaf'],['lam','ل','Lam'],['mim','م','Mim'],
+      ['nun','ن','Nun'],['waw','و','Waw'],['ha2','ه','Haa'],['ya','ي','Ya']
+    ];
+    const HARAKAT = [['a','َ','Fathah','a'],['i','ِ','Kasrah','i'],['u','ُ','Dammah','u']];
+
+    const KATA = [
+      {ar:'كَتَبَ', id:'menulis', syl:['ka','ta','ba'], latin:'kataba'},
+      {ar:'جَمَل', id:'unta', syl:['ja','mal'], latin:'jamal'},
+      {ar:'بَيْت', id:'rumah', syl:['bayt'], latin:'bayt'},
+      {ar:'قَلَم', id:'pena', syl:['qa','lam'], latin:'qalam'},
+      {ar:'مَاء', id:'air', syl:['ma'], latin:'maa'},
+      {ar:'قِطّ', id:'kucing', syl:['qit'], latin:'qitt'},
+      {ar:'سَمَك', id:'ikan', syl:['sa','mak'], latin:'samak'},
+      {ar:'طَيْر', id:'burung', syl:['tayr'], latin:'tayr'},
+      {ar:'مَدْرَسَة', id:'sekolah', syl:['mad','ra','sah'], latin:'madrasa'},
+      {ar:'كِتَاب', id:'buku', syl:['ki','taab'], latin:'kitaab'}
+    ];
+
+    const OBJECTS = [
+      {name:'جَمَل (unta)', icon:'🐪', first:'ج'},
+      {name:'قِطّ (kucing)', icon:'🐱', first:'ق'},
+      {name:'سَمَك (ikan)', icon:'🐟', first:'س'},
+      {name:'طَيْر (burung)', icon:'🐦', first:'ط'},
+      {name:'دَجَاج (ayam)', icon:'🐔', first:'د'},
+      {name:'ثَوْر (sapi jantan)', icon:'🐮', first:'ث'}
+    ];
+
+    // Save/Load
+    const SAVE_KEY='iqra20_save_v4'; const SEED_HISTORY_KEY='iqra20_seed_hist';
+    let state = {
+      seed:'', rng:Math.random, level:1, qIndex:0, correct:0, levelScore:0, totalScore:0,
+      perLevelStats: Array(20).fill(null),
+      qs:{}
+    };
+    function newSeed(){
+      const s='S'+Math.random().toString(36).slice(2)+Date.now().toString(36);
+      let hist=JSON.parse(localStorage.getItem(SEED_HISTORY_KEY)||'[]').slice(-7);
+      let seed=s; if(hist.includes(seed)) seed=s+'x';
+      hist.push(seed); localStorage.setItem(SEED_HISTORY_KEY, JSON.stringify(hist));
+      return seed;
+    }
+    function initRng(seed){ state.seed=seed; const h=xmur3(seed)(); state.rng=mulberry32(h); }
+    function save(){ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
+    function load(){ try{ return JSON.parse(localStorage.getItem(SAVE_KEY)||'null') }catch{ return null } }
+    function clearSave(){ localStorage.removeItem(SAVE_KEY) }
+
+    // UI refs
+    const content = $('#content'); const levelResult = $('#levelResult'); const finalScreen = $('#finalScreen');
+    const elLevel=$('#levelNow'), elQNow=$('#qNow'), elQTot=$('#qTot'), elCorrect=$('#correctNow'), elScore=$('#scoreNow');
+    $('#btnPause').onclick = ()=>{ $('#pauseOverlay').classList.remove('hidden'); save(); ting(undefined,undefined,'Jeda'); };
+    $('#btnResume').onclick = ()=>{ $('#pauseOverlay').classList.add('hidden'); ting(undefined,undefined,'Lanjut!'); };
+    $('#btnSaveExit').onclick = ()=>{ save(); ting(undefined,undefined,'Tersimpan!'); };
+    $('#btnRestart').onclick = ()=>{
+      if(confirm('Mulai baru akan menghapus progres. Lanjut?')){
+        clearSave(); startNewGame(); ting(undefined,undefined,'Mulai Baru!');
+      }
+    };
+    $('#btnFinalRestart').onclick = ()=>{ clearSave(); startNewGame(); };
+    $('#btnExit').onclick = ()=>{ save(); alert('Kamu bisa menutup aplikasi. Progres sudah tersimpan. Sampai jumpa!'); };
+
+    // Levels
+    const LEVELS = [
+      {id:1,  name:'Tebak Huruf', type:'choice-letter', total:10},
+      {id:2,  name:'Tebak “Suara”', type:'choice-sim-sound', total:10},
+      {id:3,  name:'Memori Mudah', type:'memory', pairs:5, total:10},
+      {id:4,  name:'Harakat yang Sama', type:'harakat-same', total:10},
+      {id:5,  name:'Susun Huruf (klik urutan)', type:'order-click', total:10},
+      {id:6,  name:'Cocokkan Huruf dengan Kata Awal', type:'choice-obj', total:10},
+      {id:7,  name:'Trace & Draw', type:'trace', total:10},
+      {id:8,  name:'Drag & Drop: Gambar ↔ Huruf', type:'dragMatch', total:10},
+      {id:9,  name:'Puzzle Hijaiyah', type:'puzzle2x2', rounds:5, total:5},
+      {id:10, name:'Tes Kata', type:'choice-vocab', total:10},
+      {id:11, name:'Tebak Warna Huruf', type:'color-choice', total:10},
+      {id:12, name:'Tebak “Suara” 3 Suku', type:'choice-3syl', total:10},
+      {id:13, name:'Tarik Kata (Urutkan Arab)', type:'order-words-ar', total:10},
+      {id:14, name:'Huruf yang Dimerahi', type:'choice-highlight', total:10},
+      {id:15, name:'Memori Lanjutan', type:'memory-advanced', pairs:8, total:16},
+      {id:16, name:'Huruf + Harakat (Simulasi)', type:'harakat-sim', total:10},
+      {id:17, name:'Speed Benar/Salah', type:'speed-tf', total:10},
+      {id:18, name:'Cari & Kumpulkan', type:'find', total:10},
+      {id:19, name:'Huruf Hilang', type:'missing-letter', total:10},
+      {id:20, name:'Ulangi Urutan (Tap)', type:'repeat-by-tap', total:10}
+    ];
+
+    // Question generators
+    function genQuestionsForLevel(lv){
+      const rng = state.rng; const L = LEVELS.find(l=>l.id===lv); let qs=[];
+      switch(L.type){
+        case 'choice-letter': {
+          for(let i=0;i<L.total;i++){
+            const c = pick(HIJAIYAH, rng); const w = shuffle(HIJAIYAH.filter(x=>x!==c), rng).slice(0,2);
+            const opts = shuffle([c[2], w[0][2], w[1][2]], rng);
+            qs.push({prompt: c[1], options:opts, answer: c[2]});
+          } break;
+        }
+        case 'choice-sim-sound': {
+          for(let i=0;i<L.total;i++){
+            const c = pick(HIJAIYAH, rng); const w = shuffle(HIJAIYAH.filter(x=>x!==c), rng).slice(0,2);
+            const opts = shuffle([c[1], w[0][1], w[1][1]], rng);
+            qs.push({prompt:`Bunyinya: “${c[2]}”`, options:opts, answer: c[1]});
+          } break;
+        }
+        case 'memory': {
+          qs.push({pairs: shuffle(HIJAIYAH, rng).slice(0, L.pairs||5)}); break;
+        }
+        case 'harakat-same': {
+          for(let i=0;i<L.total;i++){
+            const har = pick(HARAKAT, rng);
+            const cor = pick(HIJAIYAH, rng)[1] + har[1];
+            const wh1 = pick(HARAKAT.filter(x=>x!==har), rng)[1];
+            const wh2 = pick(HARAKAT.filter(x=>x[1]!==har[1] && x[1]!==wh1), rng)[1];
+            const wrong1 = pick(HIJAIYAH, rng)[1] + wh1;
+            const wrong2 = pick(HIJAIYAH, rng)[1] + wh2;
+            const opts = shuffle([cor, wrong1, wrong2], rng);
+            qs.push({prompt:`Pilih huruf berharakat ${har[2]} (${har[3]})`, options:opts, answer:cor});
+          } break;
+        }
+        case 'order-click': {
+          for(let i=0;i<L.total;i++){
+            const k = pick(KATA, rng);
+            const letters = k.ar.replace(/[^ء-ي]/g,'').split('');
+            const mixed = shuffle(letters, rng);
+            qs.push({target:letters, mixed, hintLatin:k.latin});
+          } break;
+        }
+        case 'choice-obj': {
+          for(let i=0;i<L.total;i++){
+            const it = pick(OBJECTS, rng);
+            const w1 = pick(HIJAIYAH.filter(x=>x[1]!==it.first), rng)[1];
+            const w2 = pick(HIJAIYAH.filter(x=>x[1]!==it.first && x[1]!==w1), rng)[1];
+            const opts = shuffle([it.first, w1, w2], rng);
+            qs.push({name:it.name, icon:it.icon, options:opts, answer:it.first});
+          } break;
+        }
+        case 'trace': {
+          for(let i=0;i<L.total;i++){ const h=pick(HIJAIYAH, rng); qs.push({letter:h[1]}); } break;
+        }
+        case 'dragMatch': {
+          for(let i=0;i<L.total;i++){
+            const choices = shuffle(HIJAIYAH, rng).slice(0,3);
+            const correct = pick(choices, rng);
+            qs.push({items: choices.map(c=>({ar:c[1], latin:c[2]})), target: correct[1], answer: correct[2]});
+          } break;
+        }
+        case 'puzzle2x2': {
+          for(let i=0;i<L.total;i++){ const h=pick(HIJAIYAH, rng); qs.push({letter:h[1]}); } break;
+        }
+        case 'choice-vocab': {
+          for(let i=0;i<L.total;i++){
+            const k=pick(KATA, rng); const others=shuffle(KATA.filter(x=>x!==k), rng).slice(0,2);
+            const opts=shuffle([k.id, others[0].id, others[1].id], rng);
+            qs.push({prompt:`${k.ar} (${k.latin})`, options:opts, answer:k.id});
+          } break;
+        }
+        case 'color-choice': {
+          const COLORS=[['Merah','#ef4444'],['Biru','#3b82f6'],['Kuning','#f59e0b'],['Hijau','#10b981'],['Ungu','#8b5cf6'],['Jingga','#f97316']];
+          for(let i=0;i<L.total;i++){
+            const h=pick(HIJAIYAH, rng), c=pick(COLORS, rng);
+            const wrongs = shuffle(COLORS.filter(x=>x!==c), rng).slice(0,2).map(x=>x[0]);
+            const opts = shuffle([c[0], ...wrongs], rng);
+            qs.push({letter:h[1], color:c, options:opts, answer:c[0]});
+          } break;
+        }
+        case 'choice-3syl': {
+          for(let i=0;i<L.total;i++){
+            const k=pick(KATA, rng), others=shuffle(KATA.filter(x=>x!==k), rng).slice(0,2);
+            const opts=shuffle([k.ar, others[0].ar, others[1].ar], rng);
+            qs.push({prompt:`Bunyinya: “${k.syl.join('-')}”`, options:opts, answer:k.ar});
+          } break;
+        }
+        case 'order-words-ar': {
+          for(let i=0;i<L.total;i++){
+            const k=pick(KATA, rng); const letters=k.ar.replace(/[^ء-ي]/g,'').split(''); const mixed=shuffle(letters, rng);
+            qs.push({hint:`${k.syl.join('-')} (latin)`, target:letters, mixed});
+          } break;
+        }
+        case 'choice-highlight': {
+          for(let i=0;i<L.total;i++){
+            const k=pick(KATA, rng), letters=k.ar.replace(/[^ء-ي]/g,'').split('');
+            const idx=Math.floor(rng()*letters.length), chosen=letters[idx];
+            const w1=pick(HIJAIYAH.filter(x=>x[1]!==chosen), rng)[1], w2=pick(HIJAIYAH.filter(x=>x[1]!==chosen && x[1]!==w1), rng)[1];
+            const opts = shuffle([chosen, w1, w2], rng);
+            qs.push({word:k.ar, index:idx, options:opts, answer:chosen});
+          } break;
+        }
+        case 'memory-advanced': {
+          const letters = shuffle(HIJAIYAH.map(x=>x[1]), rng).slice(0,6);
+          const combos = shuffle(['با','لا','ما','قا','فا','نا','يا','را'], rng).slice(0,2);
+          const pool = shuffle([...letters, ...combos].map(v=>['',v,'']), rng).slice(0,8);
+          qs.push({pairs:pool}); break;
+        }
+        case 'harakat-sim': {
+          for(let i=0;i<L.total;i++){
+            const h=pick(HIJAIYAH, rng), har=pick(HARAKAT, rng);
+            const correct=h[1]+har[1]; const wrong1=pick(HIJAIYAH.filter(x=>x!==h), rng)[1]+har[1]; const wrong2=h[1]+pick(HARAKAT.filter(x=>x!==har), rng)[1];
+            const opts=shuffle([correct, wrong1, wrong2], rng);
+            qs.push({prompt:`Bunyinya: “${h[2].toLowerCase()}-${har[3]}”`, options:opts, answer:correct});
+          } break;
+        }
+        case 'speed-tf': {
+          for(let i=0;i<L.total;i++){
+            const k=pick(KATA, rng); const shown=(state.rng()<0.5)?k.ar:pick(KATA.filter(x=>x!==k), rng).ar;
+            qs.push({text:shown, sound:k.syl.join(''), correct:(shown===k.ar)});
+          } break;
+        }
+        case 'find': {
+          const targets=shuffle(HIJAIYAH.map(x=>x[1]), rng).slice(0,2); qs.push({targets}); break;
+        }
+        case 'missing-letter': {
+          for(let i=0;i<L.total;i++){
+            const k=pick(KATA, rng), letters=k.ar.replace(/[^ء-ي]/g,'').split(''); const idx=Math.floor(rng()*letters.length); const miss=letters[idx]; letters[idx]='□';
+            const w1=pick(HIJAIYAH.filter(x=>x[1]!==miss), rng)[1], w2=pick(HIJAIYAH.filter(x=>x[1]!==miss && x[1]!==w1), rng)[1];
+            const opts=shuffle([miss,w1,w2], rng);
+            qs.push({shown:letters.join(''), prompt:`Bunyinya: “${k.latin}”`, options:opts, answer:miss});
+          } break;
+        }
+        case 'repeat-by-tap': {
+          for(let i=0;i<L.total;i++){
+            const k=pick(KATA, rng), letters=k.ar.replace(/[^ء-ي]/g,'').split(''); const len=Math.min(3, Math.max(2, Math.floor(state.rng()*3)+2))-1;
+            const seq=shuffle(letters, rng).slice(0,len);
+            qs.push({display:k.ar, seq});
+          } break;
+        }
+      }
+      return qs;
+    }
+    function ensureQuestions(lv){ if(!state.qs[lv]) state.qs[lv]=genQuestionsForLevel(lv); return state.qs[lv]; }
+
+    // Top bars
+    function setBars(total){
+      $('#levelNow').textContent=state.level;
+      const L=LEVELS.find(l=>l.id===state.level);
+      const special = ['memory','memory-advanced','find'].includes(L.type);
+      $('#qNow').textContent= special ? total : state.qIndex+1;
+      $('#qTot').textContent= total;
+      $('#correctNow').textContent=state.correct; $('#scoreNow').textContent=state.levelScore;
+    }
+    function autoNext(delay=700){
+      setTimeout(()=>{
+        const L=LEVELS.find(l=>l.id===state.level); const total=L.total||10;
+        if(['memory','memory-advanced','find'].includes(L.type)) return;
+        state.qIndex++;
+        if(state.qIndex>=total){ showLevelResult(); }
+        else{ render(); }
+      }, delay);
+    }
+
+    // Generic MCQ
+    function renderMCQ({titleEl, options, answer}){
+      const wrap=document.createElement('div'); wrap.className='grid-2';
+      const left=document.createElement('div'), right=document.createElement('div');
+      const q=document.createElement('div'); q.className='qbox center'; q.appendChild(titleEl); left.appendChild(q);
+      const opts=document.createElement('div'); opts.className='grid-3';
+      options.forEach(opt=>{
+        const b=document.createElement('button'); b.className='opt';
+        if(/^</.test(opt)) b.innerHTML=opt; else b.textContent=opt;
+        b.onclick=(e)=>{
+          if(b.dataset.lock) return; $$('.opt').forEach(x=>x.dataset.lock=1);
+          if(opt===answer){ b.classList.add('opt-right'); state.correct++; state.levelScore+=10; ting(e.clientX,e.clientY); confettiBurst(10); }
+          else{ b.classList.add('opt-wrong'); ting(e.clientX,e.clientY,'Oops'); }
+          setBars(LEVELS.find(l=>l.id===state.level).total); autoNext();
+        };
+        opts.appendChild(b);
+      });
+      right.appendChild(opts); wrap.appendChild(left); wrap.appendChild(right); content.appendChild(wrap);
+    }
+
+    function highlightWord(word, index){
+      const letters=word.split(''); let idx=0; let html='<div class="arab" style="font-size:46px;font-weight:800">';
+      for(const ch of letters){
+        if(/[ء-ي]/.test(ch)){ const mark=(idx===index); html+=`<span style="${mark?'color:#ffcd29;text-shadow:0 0 8px rgba(255,205,41,.6)':''}">${ch}</span>`; idx++; }
+        else html+=ch;
+      }
+      html+='</div>'; return html;
+    }
+
+    // Renderers
+    function render(){
+      levelResult.classList.add('hidden'); finalScreen.classList.add('hidden'); content.innerHTML='';
+      const L=LEVELS.find(l=>l.id===state.level); const qs=ensureQuestions(state.level); setBars(L.total||10);
+
+      if(L.type==='choice-letter'){
+        const q=qs[state.qIndex];
+        const title=document.createElement('div');
+        title.innerHTML=`<div style="font-size:22px;margin-bottom:8px">Pilih nama huruf ini</div>
+                         <div class="arab big" style="text-shadow:0 6px 0 rgba(0,0,0,.08)">${q.prompt}</div>
+                         <div class="hint" style="margin-top:8px">🎀 Dekor pita & balon warna-warni</div>`;
+        renderMCQ({titleEl:title, options:q.options, answer:q.answer}); save(); return;
+      }
+      if(L.type==='choice-sim-sound'){
+        const q=qs[state.qIndex];
+        const title=document.createElement('div');
+        title.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;gap:12px">
+          <div style="width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#ffe08a,#ffcd29);position:relative;box-shadow:0 6px 0 rgba(0,0,0,.06)">
+            <div style="position:absolute;width:10px;height:10px;background:#111;border-radius:50%;left:16px;top:18px;animation:blink 4s linear infinite"></div>
+            <div style="position:absolute;width:10px;height:10px;background:#111;border-radius:50%;right:16px;top:18px;animation:blink 4s linear infinite"></div>
+            <div style="position:absolute;right:-8px;top:-10px;font-size:22px">❓</div>
+          </div>
+          <div style="font-size:20px">${q.prompt}</div></div>`;
+        renderMCQ({titleEl:title, options:q.options.map(o=>`<span class="arab" style="font-size:34px">${o}</span>`), answer:`<span class="arab" style="font-size:34px">${q.answer}</span>`}); save(); return;
+      }
+      if(L.type==='memory' || L.type==='memory-advanced'){
+        const q=qs[0];
+        const info=document.createElement('div'); info.className='qbox center'; info.innerHTML='Balik dua kartu yang sama';
+        const grid=document.createElement('div'); grid.className='mem-grid';
+        content.appendChild(info); content.appendChild(grid);
+        const cards=shuffle([...q.pairs, ...q.pairs], state.rng);
+        let open=[], lock=false, matched=0, total=L.total;
+        cards.forEach(item=>{
+          const btn=document.createElement('button'); btn.className='mem-card'; btn.innerHTML=`
+            <div class="mem-inner">
+              <div class="mem-face"></div>
+              <div class="mem-face mem-back arab">${item[1]}</div>
+            </div>`;
+          btn.onclick=(e)=>{
+            if(lock || btn.classList.contains('flipped')) return;
+            btn.classList.add('flipped'); ting(e.clientX,e.clientY,'Flip'); open.push({btn,item});
+            if(open.length===2){
+              lock=true; setTimeout(()=>{
+                if(open[0].item===open[1].item){
+                  matched++; state.correct+=2; state.levelScore+=20; confettiBurst(10);
+                  if(matched*2>=total){ setBars(total); setTimeout(()=> showLevelResult(), 700); }
+                } else { open[0].btn.classList.remove('flipped'); open[1].btn.classList.remove('flipped'); }
+                open=[]; lock=false; setBars(total);
+              }, 420);
+            }
+          };
+          grid.appendChild(btn);
+        });
+        save(); return;
+      }
+      if(L.type==='harakat-same'){
+        const q=qs[state.qIndex];
+        const title=document.createElement('div'); title.innerHTML=`<div style="font-size:20px;margin-bottom:6px">${q.prompt}</div>`;
+        renderMCQ({titleEl:title, options:q.options.map(o=>`<span class="arab" style="font-size:34px">${o}</span>`), answer:`<span class="arab" style="font-size:34px">${q.answer}</span>`}); save(); return;
+      }
+      if(L.type==='order-click'){
+        const q=qs[state.qIndex];
+        const wrap=document.createElement('div'); wrap.className='grid-2';
+        const left=document.createElement('div'); left.className='qbox center';
+        left.innerHTML=`Klik huruf sesuai urutan untuk: <b>${q.hintLatin}</b>`;
+        const right=document.createElement('div'); right.className='box';
+
+        // Jawaban slot
+        const ans=document.createElement('div'); ans.className='row'; ans.style.gap='6px'; ans.style.flexWrap='wrap';
+        const targetLen=q.target.length; const slots=[];
+        for(let i=0;i<targetLen;i++){ const s=document.createElement('div'); s.className='opt'; s.style.minWidth='44px'; s.style.minHeight='44px'; s.style.display='flex'; s.style.alignItems='center'; s.style.justifyContent='center'; s.style.background='#fff'; s.style.borderColor='#dbe1e7'; s.dataset.filled='';
+          ans.appendChild(s); slots.push(s); }
+
+        // Pilihan huruf (acak)
+        const opts=document.createElement('div'); opts.className='row'; opts.style.flexWrap='wrap'; opts.style.gap='8px'; opts.style.marginTop='10px';
+        const pool=q.mixed.slice(); // gunakan campuran huruf kata saja
+        let fillAt=0;
+        function updateSlots(){ slots.forEach((s,i)=> s.textContent = s.dataset.filled || ''); }
+        pool.forEach(ch=>{
+          const b=document.createElement('button'); b.className='opt arab'; b.textContent=ch;
+          b.onclick=(e)=>{
+            if(fillAt>=targetLen) return;
+            slots[fillAt].dataset.filled = ch; fillAt++; updateSlots(); ting(e.clientX,e.clientY,'Tap');
+            if(fillAt===targetLen){
+              const ansStr = slots.map(s=>s.dataset.filled).join('');
+              const tarStr = q.target.join('');
+              if(ansStr===tarStr){ state.correct++; state.levelScore+=10; confettiBurst(12); setBars(L.total); autoNext(); }
+              else { ting(undefined,undefined,'Coba lagi'); // reset isian
+                fillAt=0; slots.forEach(s=> s.dataset.filled=''); updateSlots();
+              }
+            }
+          };
+          opts.appendChild(b);
+        });
+
+        // Tombol hapus terakhir
+        const tools=document.createElement('div'); tools.className='row'; tools.style.justifyContent='flex-end'; tools.style.marginTop='8px';
+        const undo=document.createElement('button'); undo.className='btn'; undo.textContent='↩️ Hapus Terakhir';
+        undo.onclick=()=>{ if(fillAt>0){ fillAt--; slots[fillAt].dataset.filled=''; updateSlots(); ting(undefined,undefined,'Undo'); } };
+        tools.appendChild(undo);
+
+        right.appendChild(ans); right.appendChild(opts); right.appendChild(tools);
+        wrap.appendChild(left); wrap.appendChild(right); content.appendChild(wrap); save(); return;
+      }
+      if(L.type==='choice-obj'){
+        const q=qs[state.qIndex];
+        const title=document.createElement('div'); title.innerHTML=`<div style="font-size:20px;margin-bottom:6px">Huruf awal kata ini apa?</div>
+          <div style="font-size:60px">${q.icon}</div>
+          <div class="arab" style="font-size:32px;margin-top:6px">${q.name}</div>`;
+        renderMCQ({titleEl:title, options:q.options.map(o=>`<span class="arab" style="font-size:34px">${o}</span>`), answer:`<span class="arab" style="font-size:34px">${q.answer}</span>`}); save(); return;
+      }
+      if(L.type==='trace'){
+        const q=qs[state.qIndex];
+        const wrap=document.createElement('div'); wrap.className='grid-2';
+        const left=document.createElement('div'); left.className='qbox center'; left.innerHTML=`<div class="arab big" style="opacity:.35">${q.letter}</div><div class="hint" style="margin-top:6px">Ikuti bentuk huruf</div>`;
+        const right=document.createElement('div'); right.className='box';
+        right.innerHTML=`<div class="muted">Gambar di kanvas. Minimal 80 goresan.</div><canvas id="trace" width="480" height="260" style="width:100%;background:#fff;border:2px solid #e5e7eb;border-radius:12px;margin-top:8px"></canvas>`;
+        wrap.appendChild(left); wrap.appendChild(right); content.appendChild(wrap);
+        const c=$('#trace'); const ctx=c.getContext('2d'); let drawing=false, count=0, last=null;
+        c.addEventListener('pointerdown', e=>{ drawing=true; last=pos(e); });
+        c.addEventListener('pointerup', ()=>{ drawing=false; last=null; });
+        c.addEventListener('pointerleave', ()=>{ drawing=false; last=null; });
+        c.addEventListener('pointermove', e=>{
+          if(!drawing) return; const p=pos(e); ctx.strokeStyle='#ffcd29'; ctx.lineWidth=6; ctx.lineCap='round';
+          ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); last=p; count++; if(count%12===0) ting(e.clientX,e.clientY,'…');
+          if(count>80){ state.correct++; state.levelScore+=10; setBars(L.total); confettiBurst(10); autoNext(); drawing=false; }
+        });
+        function pos(e){ const r=c.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top} }
+        save(); return;
+      }
+      if(L.type==='dragMatch'){
+        const q=qs[state.qIndex];
+        const wrap=document.createElement('div'); wrap.className='grid-2';
+        const left=document.createElement('div'); left.className='qbox center'; left.innerHTML=`<div class="arab big">${q.target}</div><div class="hint" style="margin-top:6px">Tarik nama huruf yang cocok</div>`;
+        const right=document.createElement('div'); right.className='box';
+        right.innerHTML=`<div class="muted">Tarik ke kotak:</div><div id="drop" class="drop-zone" style="margin-top:8px">Lepaskan di sini</div>`;
+        const dragWrap=document.createElement('div'); dragWrap.className='row'; dragWrap.style.flexWrap='wrap'; dragWrap.style.gap='8px'; dragWrap.style.marginTop='10px';
+        q.items.forEach(it=>{
+          const d=document.createElement('div'); d.className='draggable'; d.draggable=true; d.textContent=it.latin;
+          d.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', it.latin); ting(e.clientX,e.clientY,'Tarik'); });
+          dragWrap.appendChild(d);
+        });
+        const drop = ()=>$('#drop');
+        drop().addEventListener('dragover', e=> e.preventDefault());
+        drop().addEventListener('drop', e=>{
+          e.preventDefault();
+          const txt=e.dataTransfer.getData('text/plain'); drop().textContent=txt;
+          if(txt===q.answer){ state.correct++; state.levelScore+=10; setBars(L.total); confettiBurst(10); autoNext(); }
+          else{ ting(e.clientX,e.clientY,'Belum'); }
+        });
+        wrap.appendChild(left); wrap.appendChild(right); right.appendChild(dragWrap); content.appendChild(wrap); save(); return;
+      }
+      if(L.type==='puzzle2x2'){
+        const q=qs[state.qIndex];
+        const white=document.createElement('div'); white.className='qbox center'; white.textContent='Susun kembali potongan huruf';
+        const puz=document.createElement('div'); puz.className='puz';
+        content.appendChild(white); content.appendChild(puz);
+        const positions=[0,1,2,3]; const shuffled=shuffle(positions, state.rng); let first=null;
+        shuffled.forEach((pos,i)=>{
+          const c=document.createElement('div'); c.className='puz-cell arab'; c.dataset.pos=String(pos); c.textContent=q.letter; c.style.opacity=(i%2?.6:.9);
+          c.onclick=(e)=>{
+            ting(e.clientX,e.clientY,'Swap');
+            if(!first){ first=c; c.style.outline='2px solid #ffcd29'; return; }
+            first.style.outline='none';
+            const a=first.getAttribute('data-pos'), b=c.getAttribute('data-pos');
+            first.setAttribute('data-pos', b); c.setAttribute('data-pos', a); first=null;
+            const ok=Array.from(puz.children).every((ch,idx)=> +ch.getAttribute('data-pos')===idx);
+            if(ok){ state.correct++; state.levelScore+=10; setBars(L.total); confettiBurst(10); autoNext(); }
+          };
+          puz.appendChild(c);
+        });
+        save(); return;
+      }
+      if(L.type==='choice-vocab'){
+        const q=qs[state.qIndex];
+        const title=document.createElement('div'); title.innerHTML=`<div style="font-size:20px;margin-bottom:6px">Arti kata berikut?</div><div class="arab big" style="font-size:50px">${q.prompt}</div>`;
+        renderMCQ({titleEl:title, options:q.options, answer:q.answer}); save(); return;
+      }
+      if(L.type==='color-choice'){
+        const q=qs[state.qIndex];
+        const title=document.createElement('div'); title.innerHTML=`<div style="font-size:20px;margin-bottom:6px">Warna huruf ini apa?</div><div class="arab big" style="color:${q.color[1]}">${q.letter}</div>`;
+        renderMCQ({titleEl:title, options:q.options, answer:q.answer}); save(); return;
+      }
+      if(L.type==='choice-3syl'){
+        const q=qs[state.qIndex];
+        const title=document.createElement('div'); title.innerHTML=`<div style="font-size:20px;margin-bottom:6px">${q.prompt}</div>`;
+        renderMCQ({titleEl:title, options:q.options.map(o=>`<span class="arab" style="font-size:34px">${o}</span>`), answer:`<span class="arab" style="font-size:34px">${q.answer}</span>`}); save(); return;
+      }
+      if(L.type==='order-words-ar'){
+        const q=qs[state.qIndex];
+        const wrap=document.createElement('div'); wrap.className='grid-2';
+        const left=document.createElement('div'); left.className='qbox center'; left.innerHTML=`Susun blok huruf sesuai bunyi: <b>${q.hint}</b>`;
+        const right=document.createElement('div'); right.className='box';
+        const list=document.createElement('div'); list.className='row'; list.style.flexWrap='wrap'; list.style.gap='8px';
+        q.mixed.forEach((it, idx)=>{
+          const d=document.createElement('div'); d.className='draggable arab'; d.draggable=true; d.textContent=it; d.dataset.idx=idx;
+          d.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', idx); ting(e.clientX,e.clientY,'Tarik'); });
+          list.appendChild(d);
+        });
+        list.addEventListener('dragover', e=> e.preventDefault());
+        list.addEventListener('drop', e=>{
+          e.preventDefault();
+          const from=+e.dataTransfer.getData('text/plain');
+          const toEl=e.target.closest('.draggable'); if(!toEl) return;
+          const to=+toEl.dataset.idx; const arr=Array.from(list.children);
+          if(from===to) return;
+          list.insertBefore(arr[from], (to>from)?arr[to].nextSibling:arr[to]);
+          Array.from(list.children).forEach((c,i)=> c.dataset.idx=i);
+        });
+        const check=document.createElement('button'); check.className='btn btn-cta'; check.textContent='Cek Urutan';
+        check.onclick=()=>{ const cur=Array.from(list.children).map(x=>x.textContent).join(''); const tar=q.target.join('');
+          if(cur===tar){ state.correct++; state.levelScore+=10; setBars(L.total); confettiBurst(10); autoNext(); } else { ting(undefined,undefined,'Coba lagi'); }
+        };
+        right.appendChild(list); right.appendChild(document.createElement('div')).style.height='8px'; right.appendChild(check);
+        wrap.appendChild(left); wrap.appendChild(right); content.appendChild(wrap); save(); return;
+      }
+      if(L.type==='choice-highlight'){
+        const q=qs[state.qIndex];
+        const title=document.createElement('div'); title.innerHTML = highlightWord(q.word, q.index);
+        renderMCQ({titleEl:title, options:q.options.map(o=>`<span class="arab" style="font-size:34px">${o}</span>`), answer:`<span class="arab" style="font-size:34px">${q.answer}</span>`}); save(); return;
+      }
+      if(L.type==='harakat-sim'){
+        const q=qs[state.qIndex];
+        const title=document.createElement('div'); title.innerHTML=`<div style="font-size:20px;margin-bottom:6px">${q.prompt}</div>`;
+        renderMCQ({titleEl:title, options:q.options.map(o=>`<span class="arab" style="font-size:34px">${o}</span>`), answer:`<span class="arab" style="font-size:34px">${q.answer}</span>`}); save(); return;
+      }
+      if(L.type==='speed-tf'){
+        const q=qs[state.qIndex];
+        let t=3;
+        const box=document.createElement('div'); box.className='qbox'; box.innerHTML = `
+          <div class="row"><div>Soal cepat (3 detik)</div><div class="score-tag">⏳ <b id="sec">${t}</b>s</div></div>
+          <div class="center" style="margin-top:8px"><div class="arab" style="font-size:46px">${q.text}</div><div class="hint" style="margin-top:6px">Bunyinya: ${q.sound}</div></div>
+          <div class="row" style="justify-content:center;margin-top:10px;gap:10px">
+            <button id="btnTrue" class="btn btn-good">Benar ✔</button>
+            <button id="btnFalse" class="btn btn-bad">Salah ✖</button>
+          </div>`;
+        content.appendChild(box);
+        const sec=$('#sec'); const int=setInterval(()=>{ t--; sec.textContent=t; if(t<=0){ clearInterval(int); finish(null); } },1000);
+        $('#btnTrue').onclick=()=>{ clearInterval(int); finish(true); };
+        $('#btnFalse').onclick=()=>{ clearInterval(int); finish(false); };
+        function finish(choice){
+          $('#btnTrue').disabled=true; $('#btnFalse').disabled=true;
+          const ok=(choice===q.correct);
+          if(ok){ state.correct++; state.levelScore+=10; confettiBurst(10); }
+          else ting(undefined,undefined,'Lewat');
+          setBars(L.total); autoNext();
+        }
+        save(); return;
+      }
+      if(L.type==='find'){
+        const q=qs[0]; const targetA=q.targets[0], targetB=q.targets[1];
+        const info=document.createElement('div'); info.className='qbox'; info.innerHTML=`
+          <div class="row"><div class="hint">Klik 5 huruf <span class="arab" style="font-weight:800">${targetA}</span> lalu 5 huruf <span class="arab" style="font-weight:800">${targetB}</span></div><div class="score-tag">Terkumpul: <b id="found">0</b>/10</div></div>`;
+        const scene=document.createElement('div'); scene.className='scene'; content.appendChild(info); content.appendChild(scene);
+        let found=0, phase=0;
+        function scatter(letter){
+          scene.innerHTML=''; const W=scene.clientWidth||600, H=260;
+          const decoys=shuffle(HIJAIYAH.map(x=>x[1]).filter(x=>x!==letter), state.rng).slice(10);
+          const all=shuffle([...Array(5).fill(letter), ...decoys], state.rng);
+          all.forEach(ch=>{
+            const b=document.createElement('div'); b.className='bubble arab'; b.textContent=ch;
+            const x=Math.floor(state.rng()*(W-70))+10, y=Math.floor(state.rng()*(H-40))+10; b.style.left=x+'px'; b.style.top=y+'px';
+            b.onclick=(e)=>{
+              if(ch===letter){ b.style.background='#d1fae5'; found++; state.correct++; state.levelScore+=1; $('#found').textContent=found; ting(e.clientX,e.clientY,'+1');
+                setBars(L.total);
+                if(found===5 && phase===0){ phase=1; scatter(targetB); }
+                if(found>=10){ setTimeout(()=> showLevelResult(), 700); }
+              } else { b.style.background='#fee2e2'; ting(e.clientX,e.clientY,'X'); }
+            };
+            scene.appendChild(b);
+          });
+        }
+        scatter(targetA); save(); return;
+      }
+      if(L.type==='missing-letter'){
+        const q=qs[state.qIndex];
+        const title=document.createElement('div'); title.innerHTML=`<div class="arab" style="font-size:46px">${q.shown}</div><div class="hint" style="margin-top:6px">${q.prompt}</div>`;
+        renderMCQ({titleEl:title, options:q.options.map(o=>`<span class="arab" style="font-size:34px">${o}</span>`), answer:`<span class="arab" style="font-size:34px">${q.answer}</span>`}); save(); return;
+      }
+      if(L.type==='repeat-by-tap'){
+        const q=qs[state.qIndex];
+        const wrap=document.createElement('div'); wrap.className='grid-2';
+        const left=document.createElement('div'); left.className='qbox center';
+        left.innerHTML=`<div class="arab" style="font-size:46px">${q.display}</div><div class="hint" style="margin-top:6px">Tap sesuai urutan contoh</div>`;
+        const right=document.createElement('div'); right.className='box';
+        const pool = shuffle(q.seq.concat(shuffle(HIJAIYAH.map(x=>x[1]).filter(x=>!q.seq.includes(x)), state.rng).slice(3)), state.rng);
+        let at=0;
+        const opts=document.createElement('div'); opts.className='row'; opts.style.flexWrap='wrap'; opts.style.gap='8px';
+        pool.forEach(ch=>{
+          const b=document.createElement('button'); b.className='opt'; b.innerHTML=`<span class="arab" style="font-size:34px">${ch}</span>`;
+          b.onclick=(e)=>{
+            if(ch===q.seq[at]){ at++; b.classList.add('opt-right'); ting(e.clientX,e.clientY,'✔'); if(at>=q.seq.length){ state.correct++; state.levelScore+=10; setBars(L.total); confettiBurst(10); autoNext(); } }
+            else{ b.classList.add('opt-wrong'); ting(e.clientX,e.clientY,'X'); }
+          };
+          opts.appendChild(b);
+        });
+        right.appendChild(opts); wrap.appendChild(left); wrap.appendChild(right); content.appendChild(wrap); save(); return;
+      }
+    }
+
+    function showLevelResult(){
+      const L=LEVELS.find(l=>l.id===state.level);
+      levelResult.classList.remove('hidden');
+      $('#view').scrollIntoView({behavior:'smooth', block:'start'});
+      $('#levelResultTitle').textContent = `Hasil Level ${state.level} – ${L.name}`;
+      const pass = state.correct >= Math.ceil((L.total||10)*0.8);
+      $('#levelResultDesc').innerHTML = pass
+        ? `Hebat! Skor kamu ${state.correct}/${L.total||10} (≥ 80%). Siap lanjut ke Level ${state.level+1}?`
+        : `Skor kamu ${state.correct}/${L.total||10}. Minimal 80% untuk lanjut. Yuk ulangi level ini dulu.`;
+      $('#btnNextLevel').classList.toggle('hidden', !pass);
+      $('#btnRepeatLevel').textContent = pass ? 'Main Lagi Level Ini' : 'Ulangi Level Ini';
+      state.perLevelStats[state.level-1] = {correct:state.correct, total:(L.total||10)};
+      state.totalScore += state.levelScore;
+      save();
+    }
+    $('#btnRepeatLevel').onclick = ()=>{
+      ting(undefined,undefined,'Ulangi');
+      const lv=state.level;
+      initRng(state.seed + '-R' + Date.now().toString(36)); // variasi soal baru (backup)
+      state.qs[lv]=genQuestionsForLevel(lv);
+      state.qIndex=0; state.correct=0; state.levelScore=0;
+      levelResult.classList.add('hidden'); render();
+    };
+    $('#btnNextLevel').onclick = ()=>{
+      ting(undefined,undefined,'Lanjut!');
+      state.level++;
+      if(state.level>20){ showFinal(); return; }
+      state.qIndex=0; state.correct=0; state.levelScore=0;
+      levelResult.classList.add('hidden'); render();
+    };
+    function showFinal(){
+      finalScreen.classList.remove('hidden');
+      const sum = state.perLevelStats.map((s,i)=> s? `Level ${i+1}: ${s.correct}/${s.total}`:'').filter(Boolean).join('<br>');
+      $('#overallStats').innerHTML = `Total poin: <b>${state.totalScore}</b><br>${sum}`;
+      save();
+    }
+
+    // Start / Resume
+    function startNewGame(){
+      state={ seed:newSeed(), rng:Math.random, level:1, qIndex:0, correct:0, levelScore:0, totalScore:0, perLevelStats:Array(20).fill(null), qs:{} };
+      initRng(state.seed); render();
+    }
+    window.addEventListener('load', ()=>{
+      const saved=load();
+      if(saved){
+        $('#resumeLvl').textContent=saved.level; $('#resumeOverlay').classList.remove('hidden');
+        $('#btnResumeYes').onclick=()=>{ state=saved; initRng(state.seed); $('#resumeOverlay').classList.add('hidden'); render(); };
+        $('#btnResumeNo').onclick=()=>{ $('#resumeOverlay').classList.add('hidden'); startNewGame(); };
+      } else startNewGame();
+    });
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'982c435156993fce',t:'MTc1ODQ4NjAyNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
